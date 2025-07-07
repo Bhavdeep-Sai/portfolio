@@ -90,6 +90,16 @@ const Certificates = () => {
         },
         {
             id: 8,
+            title: "AI Hackathon",
+            issuer: "Promptrepo",
+            date: "2025",
+            image: "assets/certi/hackaton1.jpg",
+            category: "Participation",
+            downloadUrl: "assets/certi/hackaton1.pdf",
+            type: "pdf"
+        },
+        {
+            id: 9,
             title: "Java",
             issuer: "Linkedin",
             date: "2025",
