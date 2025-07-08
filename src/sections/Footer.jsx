@@ -91,7 +91,7 @@ const Footer = () => {
                     {/* CTA Section */}
                     <div className="mb-8 flex flex-col items-end">
                         <h4 className="text-lg mr-25 font-semibold mb-4">Let's Work Together</h4>
-                        <div className="flex lg:flex-col sm:flex-row  justify-center gap-5 items-center sm:space-y-0 sm:space-x-4">
+                        <div className="flex lg:flex-row sm:flex-row  justify-center gap-5 items-center sm:space-y-0 sm:space-x-4">
                             <a
                                 href="#contact"
                                 className="inline-flex items-center m-0 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-300 font-medium"
