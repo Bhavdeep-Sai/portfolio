@@ -10,24 +10,8 @@ export function Coder(props) {
   const { nodes, materials, animations } = useGLTF(
     '/models/low_poly_man_working_at_a_table_with_a_laptop.glb'
   )
+
   const { actions } = useAnimations(animations, group)
-
-
-  // My Changes
-  const xPosition = useMotionValue(-15);
-  const xSpring = useSpring(xPosition, { damping: 100 });
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      xPosition.set(isMobile? 1 : 3);
-    }, 1000); 
-
-    return () => clearTimeout(timeout); 
-  }, [isMobile, xPosition]);
-
-  useFrame(() => {
-    group.current.position.x = xSpring.get();
-  });
 
   useEffect(() => {
     if (animations.length > 0) {
@@ -35,9 +19,10 @@ export function Coder(props) {
     }
   }, [actions, animations])
 
+
   return (
     <group ref={group} {...props} dispose={null}
-      rotation={[-Math.PI / 2, 0, 3.7]}
+      rotation={[-Math.PI / 2, 0, 4.15]}
       scale={props.scale || 0.45}
       position={props.position || [3, -1.195, 0.5]}
     >

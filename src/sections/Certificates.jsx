@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Award, X, ChevronLeft, ChevronRight, Download, ExternalLink, FileText, Shuffle } from 'lucide-react';
-import { Particles } from '../components/Particles';
 
 const Certificates = () => {
     const [selectedCert, setSelectedCert] = useState(null);
@@ -303,13 +302,6 @@ const Certificates = () => {
 
     return (
         <section id='certificates' className='min-h-screen relative overflow-hidden'>
-            <Particles
-                className="absolute inset-0 -z-50"
-                quantity={200}
-                ease={80}
-                color={"#ffffff"}
-                refresh
-            />
             <div className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 pt-12 sm:pt-16 md:pt-20">
                 {/* Header */}
                 <div className={`text-center mb-8 sm:mb-12 md:mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
@@ -329,8 +321,8 @@ const Certificates = () => {
                             <button
                                 key={category}
                                 onClick={() => setActiveCategory(category)}
-                                className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-medium transition-all duration-300 text-xs sm:text-sm md:text-base ${activeCategory === category
-                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                                className={`px-3 sm:px-4 cursor-pointer md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-medium transition-all duration-300 text-xs sm:text-sm md:text-base ${activeCategory === category
+                                    ? 'bg-[#030412] text-white shadow-lg'
                                     : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
                                     }`}
                             >
@@ -350,13 +342,6 @@ const Certificates = () => {
 
                 {/* Certificates Grid */}
                 <div id="certificates-grid" className="grid relative grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
-                    <Particles
-                        className="absolute inset-0 -z-50"
-                        quantity={200}
-                        ease={80}
-                        color={"#ffffff"}
-                        refresh
-                    />
                     {currentCertificates.map((cert, index) => (
                         <div
                             key={cert.id}
@@ -417,7 +402,7 @@ const Certificates = () => {
                                     key={page}
                                     onClick={() => goToPage(page)}
                                     className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition-all duration-300 text-xs sm:text-sm ${page === currentPage
-                                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                                        ? 'bg-[#030412] text-white shadow-lg'
                                         : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
                                         }`}
                                 >

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import emailjs from "@emailjs/browser";
 import Alert from "../components/Alert";
-import { Particles } from "../components/Particles";
 import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 const Contact = () => {
@@ -54,19 +53,12 @@ const Contact = () => {
     };
     return (
         <section id="contact" className="relative flex items-center c-space py-20">
-            <Particles
-                className="absolute inset-0 -z-50"
-                quantity={200}
-                ease={80}
-                color={"#ffffff"}
-                refresh
-            />
             {showAlert && <Alert type={alertType} text={alertMessage} />}
             <div className="flex w-full justify-center">
                 <div className="hidden w-1/2 p-5 md:flex items-end ">
                     <img src="/assets/contact.svg" alt="Contact me" />
                 </div>
-                <div className="flex flex-col items-center justify-center w-[95%] md:w-1/2 p-10 mx-auto rounded-2xl border-2 border-neutral-300 bg-primary">
+                <div className="flex flex-col items-center justify-center w-[100%] md:w-1/2 p-4 pt-7 lg:p-10 mx-auto rounded-2xl border-2 border-neutral-300 bg-primary">
                     <div className="flex flex-col items-start w-full gap-5 mb-10">
                         <h2 className="text-heading">Let's Talk</h2>
                         <p className="font-normal text-neutral-400">

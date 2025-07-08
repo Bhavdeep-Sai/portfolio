@@ -19,7 +19,7 @@ const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="bg-gray-900 text-white relative">
+        <footer className="bg-[#030412] text-white relative">
             {/* Back to Top Button */}
             <button
                 onClick={scrollToTop}

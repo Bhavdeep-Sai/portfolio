@@ -1,76 +1,58 @@
-/* eslint-disable no-unused-vars */
-
-import { Float, OrbitControls } from "@react-three/drei"
-import { motion } from 'motion/react'
-import { Coder } from "../components/Coder"
-import HeroText from "../components/HeroText"
-import ParallaxBackground from "../components/ParallaxBackground"
-import { Canvas, useFrame } from "@react-three/fiber"
-import { useMediaQuery } from 'react-responsive'
-import { easing } from "maath"
-import { Suspense } from "react"
-import Loader from "../components/Loader"
-import { Particles } from "../components/Particles"
-
+import React from 'react';
+import HeroText from '../components/HeroText';
+import { Coder } from "../components/Coder";
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from "@react-three/drei";
+import { useMediaQuery } from 'react-responsive';
+import { motion } from 'framer-motion';
 
 const Hero = () => {
-    const isMobile = useMediaQuery({ maxWidth: 853 })
-    return (
-        <section id="home" className="flex relative items-start justify-center md:items-start md:justify-start min-h-screen overflow-hidden ">
-            <HeroText />
-            <Particles
-                className="absolute inset-0 -z-50"
-                quantity={100}
-                ease={80}
-                color={"#00ffff"}
-                refresh
-            />
-            <motion.figure className="absolute insert-0 top-30 lg:top-20 "
-                style={{
-                    width: "100vw", height: "100vh"
-                }}
-            >
-                <Canvas shadows camera={{ position: [0, 1, 5] }}>
-                    {/* Add lights */}
-                    <ambientLight intensity={0.5} />
-                    <directionalLight
-                        position={[5, 10, 5]}
-                        intensity={1}
-                        castShadow
-                        shadow-mapSize-width={1024}
-                        shadow-mapSize-height={1024}
-                    />
-                    <pointLight position={[0, 6, 0]} intensity={50} />
-                    <Suspense fallback={<Loader />}>
-                        <Coder
-                            scale={isMobile && 0.33}
-                            position={isMobile && [0.5, -2, 0]}
-                        />
-                    </Suspense>
-                    <Rig />
-                </Canvas>
-            </motion.figure>
-            <div
-                className="absolute bottom-8.25 right-0 w-[120%] h-80 -z-10 overflow-hidden"
-                style={{
-                    background: '#0b1121',
-                    clipPath: 'polygon(100% 100%, 0% 100%, 100% 0)',
-                    transform: 'rotate(-2deg) translateY(20px)',
-                }}
-            />
-        </section>
-    )
-}
+  const isMobile = useMediaQuery({ maxWidth: 853 });
 
-function Rig() {
-    return useFrame((state, delta) => {
-        easing.damp3(
-            state.camera.position,
-            [state.mouse.x / 10, 1 + state.mouse.y / 10, 5],
-            0.5,
-            delta
-        )
-    })
-}
+  return (
+    <section id='home' className='min-h-screen'>
+      <div className='flex flex-col lg:flex-row w-full min-h-screen justify-center items-center'>
+        <div className='lg:w-1/2 text-center mb-8 lg:mb-0'>
+          <HeroText />
+        </div>
 
-export default Hero
+        <motion.div
+          className='w-[80%] m-auto lg:w-1/2 h-full overflow-hidden relative flex items-center'
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 2, delay:2 }}
+        >
+          <figure className='w-full h-[70vh] lg:h-[100vh]'>
+            <Canvas shadows camera={{ position: [0, 0, 8] }}>
+              <ambientLight intensity={0.7} />
+              <pointLight
+                position={[-2, 2.5, -1]}
+                distance={50}
+                color="#ffecb3"
+                decay={2}
+                intensity={40}
+              />
+              <directionalLight
+                position={[5, 10, 3]}
+                intensity={2}
+                castShadow
+                shadow-mapSize-width={1024}
+                shadow-mapSize-height={1024}
+              />
+              <Coder
+                scale={0.8}
+                position={isMobile ? [2, -4, 0] : [0, -4, 0]}
+              />
+              <OrbitControls
+                enableZoom={false}
+                enablePan={false}
+              />
+            </Canvas>
+          </figure>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;

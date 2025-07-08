@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ExternalLink, Github, Play, Calendar, Users, Star, Code, Zap, Globe, Smartphone, Database, Layers } from 'lucide-react';
-import { Particles } from '../components/Particles';
 
 const Work = () => {
     const [isVisible, setIsVisible] = useState(false);
@@ -42,13 +41,6 @@ const Work = () => {
 
     return (
         <section id='work' className="min-h-screen relative py-8 sm:py-12 md:py-16 lg:pt-20 px-3 sm:px-4 md:px-6 lg:px-8">
-            <Particles
-                className="absolute min-h-screen inset-0 -z-50"
-                quantity={200}
-                ease={80}
-                color={"#ffffff"}
-                refresh
-            />
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
                 <div className={`text-center mb-8 sm:mb-12 md:mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>

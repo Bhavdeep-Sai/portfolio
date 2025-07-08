@@ -7,7 +7,7 @@ const HeroText = () => {
 
 
     const variants = {
-        hidden: { opacity: 0, x: -50 },
+        hidden: { opacity: 0, x: -60 },
         visible: { opacity: 1, x: 0 },
     }
 
@@ -26,14 +26,14 @@ const HeroText = () => {
                     variants={variants}
                     initial="hidden"
                     animate="visible"
-                    transition={{ delay: 0.5 }}
+                    transition={{ delay: 3 }}
                 >Hi, I'am Bhavdeep</motion.h1>
                 <motion.div className="flex flex-col items-start">
                     <motion.p className="text-5xl font-medium text-neutral-300"
                         variants={variants}
                         initial="hidden"
                         animate="visible"
-                        transition={{ delay: 0.75 }}
+                        transition={{ delay: 1.75 }}
                     >
                         A Developer <br /> Dedicated to Crafting
                     </motion.p>
@@ -43,15 +43,15 @@ const HeroText = () => {
                         variants={variants}
                         initial="hidden"
                         animate="visible"
-                        transition={{ delay: 1 }}
+                        transition={{ delay: 2 }}
                     >
                         <FlipWords words={words} className='font-black text-white text-8xl' />
                     </motion.div>
-                    <motion.p className="text-4xl font-medium text-neutral-300"
+                    <motion.p className="text-3xl font-medium text-neutral-300"
                         variants={variants}
                         initial="hidden"
                         animate="visible"
-                        transition={{ delay: 1.25 }}
+                        transition={{ delay: 2.25 }}
                     >Web Applications & Dashboards</motion.p>
                 </motion.div>
             </motion.div>
