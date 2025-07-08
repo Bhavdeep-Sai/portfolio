@@ -79,7 +79,7 @@ const HeroText = () => {
                         animate="visible"
                         transition={{ delay: 1.5 }}
                     >
-                        <FlipWords words={words} className='font-black text-white text-6xl' />
+                        <FlipWords words={words} className='font-black text-white text-5xl' />
                     </motion.div>
                     <motion.p className="text-4xl font-black text-neutral-300" variants={mobileVarents}
                         initial="hidden"

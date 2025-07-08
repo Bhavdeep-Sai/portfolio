@@ -2,7 +2,6 @@ import React from 'react';
 import HeroText from '../components/HeroText';
 import { Coder } from "../components/Coder";
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from "@react-three/drei";
 import { useMediaQuery } from 'react-responsive';
 import { motion } from 'framer-motion';
 
@@ -17,7 +16,7 @@ const Hero = () => {
         </div>
 
         <motion.div
-          className='w-[80%] m-auto lg:w-1/2 h-full overflow-hidden relative flex items-center'
+          className='w-[100%] m-auto lg:w-1/2 h-full overflow-hidden relative flex items-center'
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2, delay:2 }}
@@ -42,10 +41,6 @@ const Hero = () => {
               <Coder
                 scale={0.8}
                 position={isMobile ? [2, -4, 0] : [0, -4, 0]}
-              />
-              <OrbitControls
-                enableZoom={false}
-                enablePan={false}
               />
             </Canvas>
           </figure>
