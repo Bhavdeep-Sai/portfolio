@@ -463,7 +463,7 @@ const Certificates = () => {
             {/* Full Screen Modal */}
             {selectedCert && (
                 <div
-                    className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 touch-pan-y"
+                    className="fixed inset-0 mt-15 md:mt-20 bg-black/95 backdrop-blur-sm flex items-center justify-center z-1000 touch-pan-y"
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
                             closeModal();
