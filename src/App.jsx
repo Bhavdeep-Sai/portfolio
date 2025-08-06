@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, useInView, useScroll, useSpring } from 'framer-motion'
 import { useMediaQuery } from 'react-responsive'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './sections/Navbar'
 import Hero from './sections/Hero'
 import About from './sections/About'
@@ -8,6 +9,7 @@ import Work from './sections/Work'
 import Certificates from './sections/Certificates'
 import Contact from './sections/Contact'
 import Footer from './sections/Footer'
+import CertificatePage from './pages/CertificatePage'
 
 const SmoothScrollProvider = ({ children }) => {
   useEffect(() => {
@@ -244,43 +246,6 @@ const PageSection = React.memo(({ children, className = "" }) => {
   )
 })
 
-const LoadingScreen = React.memo(() => {
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Faster loading screen
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1500) // Reduced from 2000
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (!isLoading) return null
-
-  return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 0 }}
-      transition={{ duration: 0.3, delay: 1.2 }} // Faster transition
-      className="fixed inset-0 bg-black z-50 flex items-center justify-center"
-      style={{ 
-        pointerEvents: isLoading ? 'auto' : 'none',
-        willChange: 'opacity'
-      }}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3 }} // Faster animation
-        className="text-white text-2xl font-bold"
-      >
-        Loading...
-      </motion.div>
-    </motion.div>
-  )
-})
-
 const BackToTopButton = React.memo(() => {
   const [isVisible, setIsVisible] = useState(false)
 
@@ -333,9 +298,38 @@ const BackToTopButton = React.memo(() => {
   )
 })
 
-const App = () => {
+// Main App component that handles portfolio pages
+const MainApp = () => {
   const isMobile = useMediaQuery({ maxWidth: 853 })
   const [isLoaded, setIsLoaded] = useState(false)
+
+  const LoadingScreen = React.memo(() => {
+    return (
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0f1c] overflow-hidden"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: isLoaded ? 0 : 1 }}
+        transition={{ duration: 0.3 }}
+        style={{ pointerEvents: isLoaded ? 'none' : 'auto' }}
+      >
+        <div className="relative z-10 text-center">
+          <motion.div
+            className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.p
+            className="text-white text-lg font-medium"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Loading...
+          </motion.p>
+        </div>
+      </motion.div>
+    )
+  })
 
   useEffect(() => {
     const preloadCriticalResources = async () => {
@@ -416,6 +410,18 @@ const App = () => {
         <BackToTopButton />
       </div>
     </SmoothScrollProvider>
+  )
+}
+
+// Main App component with routing
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/certificate/:id" element={<CertificatePage />} />
+        <Route path="/*" element={<MainApp />} />
+      </Routes>
+    </Router>
   )
 }
 

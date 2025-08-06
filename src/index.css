@@ -196,3 +196,76 @@ html {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20;
 }
 
+/* Certificate Modal - Mobile optimizations */
+.certificate-modal {
+  /* Ensure modal is always on top */
+  z-index: 9999 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+}
+
+.scrollbar-hide {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+/* Touch-friendly interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Better text rendering on mobile */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* Enhanced mobile certificate viewing */
+@media (max-width: 640px) {
+  .certificate-modal {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  
+  .certificate-modal img {
+    max-width: 95vw !important;
+    max-height: 70vh !important;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .certificate-modal {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Prevent background scrolling when modal is open */
+body.modal-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+

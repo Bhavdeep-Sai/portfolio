@@ -1,118 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Award, X, ChevronLeft, ChevronRight, Download, ExternalLink, FileText, Shuffle } from 'lucide-react';
+import { Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { allCertificates } from '../data/certificates';
 
 const Certificates = () => {
-    const [selectedCert, setSelectedCert] = useState(null);
+    const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [activeCategory, setActiveCategory] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
-    const [certificatesPerPage] = useState(6);
+    const [certificatesPerPage, setCertificatesPerPage] = useState(6);
     const [shuffledCertificates, setShuffledCertificates] = useState([]);
-    const [touchStart, setTouchStart] = useState(null);
-    const [touchEnd, setTouchEnd] = useState(null);
 
-    // Sample certificate data - replace with your actual certificates
-    const originalCertificates = [
-        {
-            id: 1,
-            title: "HTML, CSS, JS & React",
-            issuer: "Udemy",
-            date: "2025",
-            image: "/assets/certi/UC-8c904f07-9e81-49f4-88c3-bb0bc1143da1.jpg",
-            category: "Skill Development",
-            downloadUrl: "/assets/certi/UC-8c904f07-9e81-49f4-88c3-bb0bc1143da1.jpg",
-            extendedLink: "https://www.udemy.com/certificate/UC-8c904f07-9e81-49f4-88c3-bb0bc1143da1/",
-            type: "image"
-        },
-        {
-            id: 2,
-            title: "Figma",
-            issuer: "Udemy",
-            date: "2025",
-            image: "assets/certi/UC-65aed631-ee21-4a7e-931a-4ddbd918f833.jpg",
-            category: "Skill Development",
-            downloadUrl: "assets/certi/UC-65aed631-ee21-4a7e-931a-4ddbd918f833.jpg",
-            extendedLink: "https://www.udemy.com/certificate/UC-65aed631-ee21-4a7e-931a-4ddbd918f833/",
-            type: "image"
-        },
-        {
-            id: 3,
-            title: "AI4AndhraPolice Hackathon",
-            issuer: "AI4AndhraPolice Hackathon Team",
-            date: "2025",
-            image: "assets/certi/hackaton2.png",
-            category: "Participation",
-            downloadUrl: "assets/certi/hackaton2.png",
-            type: "image"
-        },
-        {
-            id: 4,
-            title: "MySql",
-            issuer: "Udemy",
-            date: "2025",
-            image: "assets/certi/UC-d3e69686-1d2c-4f03-b068-54b788288898.jpg",
-            category: "Skill Development",
-            downloadUrl: "assets/certi/UC-d3e69686-1d2c-4f03-b068-54b788288898.jpg",
-            extendedLink: "https://www.udemy.com/certificate/UC-d3e69686-1d2c-4f03-b068-54b788288898/",
-            type: "image"
-        },
-        {
-            id: 5,
-            title: "Blender",
-            issuer: "Linkedin",
-            date: "2025",
-            image: "assets/certi/blender.jpg",
-            category: "Skill Development",
-            downloadUrl: "assets/certi/blender.pdf",
-            extendedLink: "https://www.linkedin.com/learning/certificates/82ea5b1fc4b6400b02714bafde56092630ed0e31001a5bb85ca7ed4de9303ef0?trk=share_certificate",
-            type: "pdf"
-        },
-        {
-            id: 6,
-            title: "MERN stack",
-            issuer: "Linkedin",
-            date: "2025",
-            image: "assets/certi/mern.jpg",
-            category: "Skill Development",
-            downloadUrl: "assets/certi/mern.pdf",
-            extendedLink: "https://www.linkedin.com/learning/certificates/bc0f67463fe43103f7fa51e56b592452ff0a7b01a6f4781bdab4bceaf2c23856?trk=share_certificate",
-            type: "pdf"
-        },
-        {
-            id: 7,
-            title: "Github",
-            issuer: "Linkedin",
-            date: "2025",
-            image: "assets/certi/github.jpg",
-            category: "Skill Development",
-            downloadUrl: "assets/certi/github.pdf",
-            extendedLink: "https://www.linkedin.com/learning/certificates/f2892ea9e8e069798f80aa2a955322b7ca13857ac7087aaf6e908dee292e267c?trk=share_certificate",
-            type: "pdf"
-        },
-        {
-            id: 8,
-            title: "AI Hackathon",
-            issuer: "Promptrepo",
-            date: "2025",
-            image: "assets/certi/hackaton1.jpg",
-            category: "Participation",
-            downloadUrl: "assets/certi/hackaton1.pdf",
-            type: "pdf"
-        },
-        {
-            id: 9,
-            title: "Java",
-            issuer: "Linkedin",
-            date: "2025",
-            image: "assets/certi/java.jpg",
-            category: "Skill Development",
-            downloadUrl: "assets/certi/java.pdf",
-            extendedLink: "https://www.linkedin.com/learning/certificates/3dbb965701dd0fa9842270ff16db62504a3b225129ebfbf093e147e6f6a1bbe0?trk=share_certificate",
-            type: "pdf"
-        },
-    ];
-
-    const categories = ['All', 'Skill Development', 'Participation'];
+    // Get unique categories from certificates
+    const categories = ['All', ...new Set(allCertificates.map(cert => cert.category))];
 
     // Shuffle function using Fisher-Yates algorithm
     const shuffleArray = (array) => {
@@ -124,37 +24,30 @@ const Certificates = () => {
         return shuffled;
     };
 
-    // Minimum swipe distance for touch navigation
-    const minSwipeDistance = 50;
-
-    // Touch handlers for swipe navigation
-    const onTouchStart = (e) => {
-        setTouchEnd(null);
-        setTouchStart(e.targetTouches[0].clientX);
-    };
-
-    const onTouchMove = (e) => {
-        setTouchEnd(e.targetTouches[0].clientX);
-    };
-
-    const onTouchEnd = () => {
-        if (!touchStart || !touchEnd) return;
-        const distance = touchStart - touchEnd;
-        const isLeftSwipe = distance > minSwipeDistance;
-        const isRightSwipe = distance < -minSwipeDistance;
-
-        if (isLeftSwipe) {
-            nextCertificate();
-        }
-        if (isRightSwipe) {
-            prevCertificate();
-        }
-    };
-
-    // Initialize with shuffled certificates
+    // Initialize with shuffled certificates and responsive pagination
     useEffect(() => {
-        setShuffledCertificates(shuffleArray(originalCertificates));
+        setShuffledCertificates(shuffleArray(allCertificates));
         setIsVisible(true);
+        
+        // Set initial certificates per page based on screen size
+        const updateCertificatesPerPage = () => {
+            if (window.innerWidth < 640) {
+                setCertificatesPerPage(4); // Mobile: 1 column, show 4
+            } else if (window.innerWidth < 1024) {
+                setCertificatesPerPage(6); // Tablet: 2 columns, show 6
+            } else if (window.innerWidth < 1280) {
+                setCertificatesPerPage(9); // Desktop: 3 columns, show 9
+            } else {
+                setCertificatesPerPage(6); // Large desktop: 4 columns, show 8
+            }
+        };
+
+        updateCertificatesPerPage();
+        window.addEventListener('resize', updateCertificatesPerPage);
+
+        return () => {
+            window.removeEventListener('resize', updateCertificatesPerPage);
+        };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Reset to first page when category changes
@@ -162,77 +55,9 @@ const Certificates = () => {
         setCurrentPage(1);
     }, [activeCategory]);
 
-    const openModal = (cert) => {
-        setSelectedCert(cert);
-        document.body.style.overflow = 'hidden';
+    const openCertificateViewer = (cert) => {
+        navigate(`/certificate/${cert.id}`);
     };
-
-    const closeModal = () => {
-        setSelectedCert(null);
-        document.body.style.overflow = 'unset';
-    };
-
-    const nextCertificate = () => {
-        const currentIndex = shuffledCertificates.findIndex(cert => cert.id === selectedCert.id);
-        const nextIndex = (currentIndex + 1) % shuffledCertificates.length;
-        setSelectedCert(shuffledCertificates[nextIndex]);
-    };
-
-    const prevCertificate = () => {
-        const currentIndex = shuffledCertificates.findIndex(cert => cert.id === selectedCert.id);
-        const prevIndex = (currentIndex - 1 + shuffledCertificates.length) % shuffledCertificates.length;
-        setSelectedCert(shuffledCertificates[prevIndex]);
-    };
-
-    // Download certificate function
-    const downloadCertificate = async (cert) => {
-        try {
-            const response = await fetch(cert.downloadUrl);
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-
-            // Get file extension from URL or default based on type
-            const fileExtension = cert.type === 'pdf' ? 'pdf' : 'jpg';
-            a.download = `${cert.title.replace(/\s+/g, '_')}_${cert.issuer.replace(/\s+/g, '_')}.${fileExtension}`;
-
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Download failed:', error);
-            // Fallback: open in new tab
-            window.open(cert.downloadUrl, '_blank');
-        }
-    };
-
-    // Handle keyboard navigation
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (!selectedCert) return;
-
-            switch (e.key) {
-                case 'Escape':
-                    closeModal();
-                    break;
-                case 'ArrowRight':
-                    nextCertificate();
-                    break;
-                case 'ArrowLeft':
-                    prevCertificate();
-                    break;
-                default:
-                    break;
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedCert]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Filter certificates based on active category
     const filteredCertificates = activeCategory === 'All'
@@ -303,9 +128,13 @@ const Certificates = () => {
                 <img
                     src={cert.image}
                     alt={cert.title}
-                    className={`w-full h-full object-cover transition-transform duration-500 ${className}`}
+                    className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${className}`}
                     onError={(e) => {
+                        console.error('Certificate image failed to load:', cert.image);
                         e.target.src = 'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=800&h=600&fit=crop';
+                    }}
+                    onLoad={() => {
+                        console.log('Certificate image loaded successfully:', cert.image);
                     }}
                 />
             );
@@ -314,9 +143,13 @@ const Certificates = () => {
                 <img
                     src={cert.image}
                     alt={cert.title}
-                    className={`w-full h-full object-cover transition-transform duration-500 ${className}`}
+                    className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${className}`}
                     onError={(e) => {
+                        console.error('Certificate image failed to load:', cert.image);
                         e.target.src = 'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=800&h=600&fit=crop';
+                    }}
+                    onLoad={() => {
+                        console.log('Certificate image loaded successfully:', cert.image);
                     }}
                 />
             );
@@ -364,23 +197,23 @@ const Certificates = () => {
                 </div>
 
                 {/* Certificates Grid */}
-                <div id="certificates-grid" className="grid relative grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
+                <div id="certificates-grid" className="grid relative grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-8 sm:mb-10 md:mb-12">
                     {currentCertificates.map((cert, index) => (
                         <div
                             key={cert.id}
-                            className={`group relative bg-white/5 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 cursor-pointer ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                            className={`group relative bg-white/5 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 cursor-pointer aspect-[4/3] ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
                                 }`}
                             style={{ transitionDelay: `${index * 100}ms` }}
-                            onClick={() => openModal(cert)}
+                            onClick={() => openCertificateViewer(cert)}
                         >
                             {/* Glow Effect */}
                             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
 
-                            <div className="relative z-10">
+                            <div className="relative z-10 h-full">
                                 {/* Certificate Preview */}
-                                <div className="relative overflow-hidden aspect-[4/3]">
+                                <div className="relative overflow-hidden h-full">
                                     <CertificatePreview cert={cert} />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
                                     {/* File type indicator */}
                                     {cert.type === 'pdf' && (
@@ -390,12 +223,12 @@ const Certificates = () => {
                                     )}
 
                                     {/* Certificate Info Overlay */}
-                                    <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                                        <h3 className="text-white font-bold text-sm sm:text-base md:text-lg mb-1 line-clamp-2">
+                                    <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-black/95 via-black/60 to-transparent">
+                                        <h3 className="text-white font-bold text-sm sm:text-base md:text-lg mb-1 line-clamp-2 leading-tight">
                                             {cert.title}
                                         </h3>
                                         <div className="flex items-center justify-between text-gray-300 text-xs sm:text-sm">
-                                            <span className="font-medium truncate max-w-[60%]">{cert.issuer}</span>
+                                            <span className="font-medium truncate max-w-[65%]">{cert.issuer}</span>
                                             <span className="flex-shrink-0">{cert.date}</span>
                                         </div>
                                     </div>
@@ -408,38 +241,42 @@ const Certificates = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                     <div className={`flex flex-col items-center gap-3 sm:gap-4 transform transition-all duration-1000 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                        <div className="flex items-center gap-1 sm:gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-2 max-w-full">
                             <button
                                 onClick={goToPrevPage}
                                 disabled={currentPage === 1}
-                                className={`p-1.5 sm:p-2 rounded-lg transition-all duration-300 ${currentPage === 1
+                                className={`flex-shrink-0 p-2 sm:p-2 rounded-lg transition-all duration-300 touch-manipulation ${currentPage === 1
                                     ? 'bg-white/5 text-gray-500 cursor-not-allowed'
                                     : 'bg-white/10 text-white hover:bg-white/20'
                                     }`}
+                                style={{ minWidth: '40px', minHeight: '40px' }}
                             >
                                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
 
-                            {pageNumbers.map(page => (
-                                <button
-                                    key={page}
-                                    onClick={() => goToPage(page)}
-                                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition-all duration-300 text-xs sm:text-sm ${page === currentPage
-                                        ? 'bg-[#030412] text-white shadow-lg'
-                                        : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
-                                        }`}
-                                >
-                                    {page}
-                                </button>
-                            ))}
+                            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+                                {pageNumbers.map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => goToPage(page)}
+                                        className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg font-medium transition-all duration-300 text-xs sm:text-sm touch-manipulation ${page === currentPage
+                                            ? 'bg-[#030412] text-white shadow-lg'
+                                            : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
+                                            }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
 
                             <button
                                 onClick={goToNextPage}
                                 disabled={currentPage === totalPages}
-                                className={`p-1.5 sm:p-2 rounded-lg transition-all duration-300 ${currentPage === totalPages
+                                className={`flex-shrink-0 p-2 sm:p-2 rounded-lg transition-all duration-300 touch-manipulation ${currentPage === totalPages
                                     ? 'bg-white/5 text-gray-500 cursor-not-allowed'
                                     : 'bg-white/10 text-white hover:bg-white/20'
                                     }`}
+                                style={{ minWidth: '40px', minHeight: '40px' }}
                             >
                                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
@@ -459,139 +296,6 @@ const Certificates = () => {
                     </div>
                 )}
             </div>
-
-            {/* Full Screen Modal */}
-            {selectedCert && (
-                <div
-                    className="fixed inset-0 mt-15 md:mt-20 bg-black/95 backdrop-blur-sm flex items-center justify-center z-1000 touch-pan-y"
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) {
-                            closeModal();
-                        }
-                    }}
-                    style={{ 
-                        height: '100dvh', // Dynamic viewport height for mobile browsers
-                        overflowY: 'auto'
-                    }}
-                >
-                    {/* Navigation Controls */}
-                    <div className="absolute top-2 sm:top-4 md:top-6 left-2 sm:left-4 md:left-6 right-2 sm:right-4 md:right-6 flex items-center justify-between z-60">
-                        <div className="flex items-center gap-2 sm:gap-4">
-                            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 max-w-[150px] sm:max-w-xs md:max-w-none">
-                                <span className="text-white font-medium text-xs sm:text-sm md:text-base truncate">{selectedCert.title}</span>
-                            </div>
-                        </div>
-                        <button
-                            onClick={closeModal}
-                            className="p-3 sm:p-2.5 md:p-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 flex-shrink-0 touch-manipulation"
-                            style={{ minWidth: '44px', minHeight: '44px' }} // Ensure minimum touch target size
-                        >
-                            <X className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
-                        </button>
-                    </div>
-
-                    {/* Certificate Display */}
-                    <div 
-                        className="relative w-full h-full flex items-center justify-center pt-16 pb-32 sm:pt-20 sm:pb-36 px-2 sm:px-8 md:px-12 lg:px-20"
-                        onTouchStart={onTouchStart}
-                        onTouchMove={onTouchMove}
-                        onTouchEnd={onTouchEnd}
-                    >
-                        {selectedCert.type === 'pdf' ? (
-                            <div className="w-full max-w-4xl h-full max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-240px)] bg-white rounded-lg overflow-hidden shadow-2xl">
-                                <iframe
-                                    src={selectedCert.downloadUrl}
-                                    title={selectedCert.title}
-                                    className="w-full h-full"
-                                    style={{ minHeight: '300px' }}
-                                />
-                            </div>
-                        ) : (
-                            <img
-                                src={selectedCert.image}
-                                alt={selectedCert.title}
-                                className="max-w-full max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-240px)] object-contain rounded-lg shadow-2xl"
-                                onError={(e) => {
-                                    e.target.src = 'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=800&h=600&fit=crop';
-                                }}
-                            />
-                        )}
-                    </div>
-
-                    {/* Navigation Arrows */}
-                    <button
-                        onClick={prevCertificate}
-                        className="absolute left-1 sm:left-4 md:left-6 top-1/2 transform -translate-y-1/2 p-3 sm:p-3 md:p-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 touch-manipulation"
-                        style={{ minWidth: '44px', minHeight: '44px' }} // Ensure minimum touch target size
-                    >
-                        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
-                    </button>
-
-                    <button
-                        onClick={nextCertificate}
-                        className="absolute right-1 sm:right-4 md:right-6 top-1/2 transform -translate-y-1/2 p-3 sm:p-3 md:p-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 touch-manipulation"
-                        style={{ minWidth: '44px', minHeight: '44px' }} // Ensure minimum touch target size
-                    >
-                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
-                    </button>
-
-                    {/* Certificate Info */}
-                    <div className="absolute bottom-12 sm:bottom-16 md:bottom-6 left-2 sm:left-4 md:left-6 right-2 sm:right-4 md:right-6 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-4 md:p-6 border border-white/20 max-h-32 sm:max-h-none overflow-y-auto">
-                        <div className="flex items-start justify-between flex-wrap gap-2 sm:gap-4">
-                            <div className="min-w-0 flex-1">
-                                <h3 className="text-white font-bold text-xs sm:text-lg md:text-xl mb-1 truncate">{selectedCert.title}</h3>
-                                <div className="flex items-center gap-1 sm:gap-2 md:gap-4 text-gray-300 flex-wrap text-xs sm:text-sm">
-                                    <span className="font-medium truncate max-w-[80px] sm:max-w-none">{selectedCert.issuer}</span>
-                                    <span className="hidden sm:inline">•</span>
-                                    <span>{selectedCert.date}</span>
-                                    <span className="hidden sm:inline">•</span>
-                                    <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-purple-500/20 rounded-full text-xs font-medium">
-                                        {selectedCert.category}
-                                    </span>
-                                    <span className="hidden sm:inline">•</span>
-                                    <span className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${selectedCert.type === 'pdf' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'
-                                        }`}>
-                                        {selectedCert.type.toUpperCase()}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="flex gap-1 sm:gap-2 flex-shrink-0">
-                                <button
-                                    onClick={() => downloadCertificate(selectedCert)}
-                                    className="p-1 sm:p-1.5 md:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
-                                    title="Download Certificate"
-                                >
-                                    <Download className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white group-hover:text-purple-300" />
-                                </button>
-                                {selectedCert.extendedLink && (
-                                    <button
-                                        className="p-1 sm:p-1.5 md:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
-                                        title="View Original"
-                                        onClick={() => window.open(selectedCert.extendedLink, '_blank')}
-                                    >
-                                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white group-hover:text-purple-300" />
-                                    </button>
-                                )}
-                                {selectedCert.type === 'pdf' && (
-                                    <button
-                                        className="p-1 sm:p-1.5 md:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
-                                        title="Open PDF in New Tab"
-                                        onClick={() => window.open(selectedCert.downloadUrl, '_blank')}
-                                    >
-                                        <FileText className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white group-hover:text-purple-300" />
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Instructions */}
-                    <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 text-center text-gray-400 text-xs px-4">
-                        <p className="hidden sm:block">Use ← → arrow keys to navigate • Press ESC to close</p>
-                        <p className="sm:hidden">Tap arrows to navigate • Tap X to close</p>
-                    </div>
-                </div>
-            )}
         </section>
     );
 };
