@@ -8,6 +8,8 @@ const Certificates = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [certificatesPerPage] = useState(6);
     const [shuffledCertificates, setShuffledCertificates] = useState([]);
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
 
     // Sample certificate data - replace with your actual certificates
     const originalCertificates = [
@@ -122,17 +124,38 @@ const Certificates = () => {
         return shuffled;
     };
 
-    // Manual shuffle function
-    const handleShuffle = () => {
-        setShuffledCertificates(shuffleArray(originalCertificates));
-        setCurrentPage(1); // Reset to first page when shuffling
+    // Minimum swipe distance for touch navigation
+    const minSwipeDistance = 50;
+
+    // Touch handlers for swipe navigation
+    const onTouchStart = (e) => {
+        setTouchEnd(null);
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            nextCertificate();
+        }
+        if (isRightSwipe) {
+            prevCertificate();
+        }
     };
 
     // Initialize with shuffled certificates
     useEffect(() => {
         setShuffledCertificates(shuffleArray(originalCertificates));
         setIsVisible(true);
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Reset to first page when category changes
     useEffect(() => {
@@ -209,7 +232,7 @@ const Certificates = () => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedCert, shuffledCertificates]);
+    }, [selectedCert]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Filter certificates based on active category
     const filteredCertificates = activeCategory === 'All'
@@ -440,44 +463,54 @@ const Certificates = () => {
             {/* Full Screen Modal */}
             {selectedCert && (
                 <div
-                    className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 touch-pan-y"
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
                             closeModal();
                         }
                     }}
+                    style={{ 
+                        height: '100dvh', // Dynamic viewport height for mobile browsers
+                        overflowY: 'auto'
+                    }}
                 >
                     {/* Navigation Controls */}
-                    <div className="absolute top-3 sm:top-4 md:top-6 left-3 sm:left-4 md:left-6 right-3 sm:right-4 md:right-6 flex items-center justify-between z-60">
+                    <div className="absolute top-2 sm:top-4 md:top-6 left-2 sm:left-4 md:left-6 right-2 sm:right-4 md:right-6 flex items-center justify-between z-60">
                         <div className="flex items-center gap-2 sm:gap-4">
-                            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 max-w-[200px] sm:max-w-xs md:max-w-none">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 max-w-[150px] sm:max-w-xs md:max-w-none">
                                 <span className="text-white font-medium text-xs sm:text-sm md:text-base truncate">{selectedCert.title}</span>
                             </div>
                         </div>
                         <button
                             onClick={closeModal}
-                            className="p-2 sm:p-2.5 md:p-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 flex-shrink-0"
+                            className="p-3 sm:p-2.5 md:p-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 flex-shrink-0 touch-manipulation"
+                            style={{ minWidth: '44px', minHeight: '44px' }} // Ensure minimum touch target size
                         >
                             <X className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
                         </button>
                     </div>
 
                     {/* Certificate Display */}
-                    <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-20">
+                    <div 
+                        className="relative w-full h-full flex items-center justify-center pt-16 pb-32 sm:pt-20 sm:pb-36 px-2 sm:px-8 md:px-12 lg:px-20"
+                        onTouchStart={onTouchStart}
+                        onTouchMove={onTouchMove}
+                        onTouchEnd={onTouchEnd}
+                    >
                         {selectedCert.type === 'pdf' ? (
-                            <div className="w-full max-w-4xl h-full bg-white rounded-lg overflow-hidden shadow-2xl">
+                            <div className="w-full max-w-4xl h-full max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-240px)] bg-white rounded-lg overflow-hidden shadow-2xl">
                                 <iframe
                                     src={selectedCert.downloadUrl}
                                     title={selectedCert.title}
                                     className="w-full h-full"
-                                    style={{ minHeight: '400px' }}
+                                    style={{ minHeight: '300px' }}
                                 />
                             </div>
                         ) : (
                             <img
                                 src={selectedCert.image}
                                 alt={selectedCert.title}
-                                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                                className="max-w-full max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-240px)] object-contain rounded-lg shadow-2xl"
                                 onError={(e) => {
                                     e.target.src = 'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=800&h=600&fit=crop';
                                 }}
@@ -488,33 +521,35 @@ const Certificates = () => {
                     {/* Navigation Arrows */}
                     <button
                         onClick={prevCertificate}
-                        className="absolute left-2 sm:left-4 md:left-6 top-1/2 transform -translate-y-1/2 p-2 sm:p-3 md:p-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300"
+                        className="absolute left-1 sm:left-4 md:left-6 top-1/2 transform -translate-y-1/2 p-3 sm:p-3 md:p-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 touch-manipulation"
+                        style={{ minWidth: '44px', minHeight: '44px' }} // Ensure minimum touch target size
                     >
                         <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
                     </button>
 
                     <button
                         onClick={nextCertificate}
-                        className="absolute right-2 sm:right-4 md:right-6 top-1/2 transform -translate-y-1/2 p-2 sm:p-3 md:p-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300"
+                        className="absolute right-1 sm:right-4 md:right-6 top-1/2 transform -translate-y-1/2 p-3 sm:p-3 md:p-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 touch-manipulation"
+                        style={{ minWidth: '44px', minHeight: '44px' }} // Ensure minimum touch target size
                     >
                         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
                     </button>
 
                     {/* Certificate Info */}
-                    <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-3 sm:left-4 md:left-6 right-3 sm:right-4 md:right-6 bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 border border-white/20">
-                        <div className="flex items-center justify-between flex-wrap gap-2 sm:gap-4">
+                    <div className="absolute bottom-12 sm:bottom-16 md:bottom-6 left-2 sm:left-4 md:left-6 right-2 sm:right-4 md:right-6 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-4 md:p-6 border border-white/20 max-h-32 sm:max-h-none overflow-y-auto">
+                        <div className="flex items-start justify-between flex-wrap gap-2 sm:gap-4">
                             <div className="min-w-0 flex-1">
-                                <h3 className="text-white font-bold text-sm sm:text-lg md:text-xl mb-1 truncate">{selectedCert.title}</h3>
-                                <div className="flex items-center gap-2 sm:gap-4 text-gray-300 flex-wrap text-xs sm:text-sm">
-                                    <span className="font-medium truncate max-w-[120px] sm:max-w-none">{selectedCert.issuer}</span>
+                                <h3 className="text-white font-bold text-xs sm:text-lg md:text-xl mb-1 truncate">{selectedCert.title}</h3>
+                                <div className="flex items-center gap-1 sm:gap-2 md:gap-4 text-gray-300 flex-wrap text-xs sm:text-sm">
+                                    <span className="font-medium truncate max-w-[80px] sm:max-w-none">{selectedCert.issuer}</span>
                                     <span className="hidden sm:inline">•</span>
                                     <span>{selectedCert.date}</span>
                                     <span className="hidden sm:inline">•</span>
-                                    <span className="px-2 py-1 bg-purple-500/20 rounded-full text-xs font-medium">
+                                    <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-purple-500/20 rounded-full text-xs font-medium">
                                         {selectedCert.category}
                                     </span>
                                     <span className="hidden sm:inline">•</span>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${selectedCert.type === 'pdf' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'
+                                    <span className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${selectedCert.type === 'pdf' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'
                                         }`}>
                                         {selectedCert.type.toUpperCase()}
                                     </span>
@@ -523,27 +558,27 @@ const Certificates = () => {
                             <div className="flex gap-1 sm:gap-2 flex-shrink-0">
                                 <button
                                     onClick={() => downloadCertificate(selectedCert)}
-                                    className="p-1.5 sm:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
+                                    className="p-1 sm:p-1.5 md:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
                                     title="Download Certificate"
                                 >
-                                    <Download className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:text-purple-300" />
+                                    <Download className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white group-hover:text-purple-300" />
                                 </button>
                                 {selectedCert.extendedLink && (
                                     <button
-                                        className="p-1.5 sm:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
+                                        className="p-1 sm:p-1.5 md:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
                                         title="View Original"
                                         onClick={() => window.open(selectedCert.extendedLink, '_blank')}
                                     >
-                                        <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:text-purple-300" />
+                                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white group-hover:text-purple-300" />
                                     </button>
                                 )}
                                 {selectedCert.type === 'pdf' && (
                                     <button
-                                        className="p-1.5 sm:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
+                                        className="p-1 sm:p-1.5 md:p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors group"
                                         title="Open PDF in New Tab"
                                         onClick={() => window.open(selectedCert.downloadUrl, '_blank')}
                                     >
-                                        <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:text-purple-300" />
+                                        <FileText className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white group-hover:text-purple-300" />
                                     </button>
                                 )}
                             </div>
@@ -551,7 +586,7 @@ const Certificates = () => {
                     </div>
 
                     {/* Instructions */}
-                    <div className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 text-center text-gray-400 text-xs sm:text-sm px-4">
+                    <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 text-center text-gray-400 text-xs px-4">
                         <p className="hidden sm:block">Use ← → arrow keys to navigate • Press ESC to close</p>
                         <p className="sm:hidden">Tap arrows to navigate • Tap X to close</p>
                     </div>
