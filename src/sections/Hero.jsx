@@ -39,7 +39,7 @@ const Hero = () => {
                 shadow-mapSize-height={1024}
               />
               <Coder
-                scale={isMobile? 1 : 0.8}
+                scale={isMobile? 0.8 : 0.8}
                 position={isMobile ? [2, -4, 0] : [0, -4, 0]}
               />
             </Canvas>
