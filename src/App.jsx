@@ -17,17 +17,12 @@ const SmoothScrollProvider = ({ children }) => {
   return children
 }
 
-const ParticleBackground = () => {
+const ParticleBackground = React.memo(() => {
   const canvasRef = useRef(null)
   const particlesRef = useRef([])
   const animationIdRef = useRef(null)
   const [isVisible, setIsVisible] = useState(true)
-  const { scrollYProgress } = useScroll()
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  })
+  const [isIntersecting, setIsIntersecting] = useState(true)
 
   const throttledScrollHandler = useCallback(() => {
     let ticking = false
@@ -36,7 +31,7 @@ const ParticleBackground = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
           const scrollSpeed = Math.abs(window.scrollY - (window.lastScrollY || 0))
-          setIsVisible(scrollSpeed < 50)
+          setIsVisible(scrollSpeed < 30) // Reduced threshold for better performance
           window.lastScrollY = window.scrollY
           ticking = false
         })
@@ -45,43 +40,63 @@ const ParticleBackground = () => {
     }
   }, [])
 
+  // Intersection Observer for better performance
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting)
+      },
+      { threshold: 0.1 }
+    )
+
+    if (canvasRef.current) {
+      observer.observe(canvasRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { 
+      alpha: true,
+      willReadFrequently: false 
+    })
     if (!ctx) return
 
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
+    // Optimize canvas rendering
+    ctx.imageSmoothingEnabled = false // Disable for performance
 
     const resizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1
+      const dpr = Math.min(window.devicePixelRatio || 1, 2) // Cap DPR for performance
       const rect = canvas.getBoundingClientRect()
 
       canvas.width = rect.width * dpr
-      canvas.height = document.body.scrollHeight * dpr
+      canvas.height = window.innerHeight * dpr // Use viewport height instead of full document
 
       canvas.style.width = rect.width + 'px'
-      canvas.style.height = document.body.scrollHeight + 'px'
+      canvas.style.height = window.innerHeight + 'px'
 
       ctx.scale(dpr, dpr)
     }
 
     resizeCanvas()
-    window.addEventListener('resize', resizeCanvas)
+    const resizeHandler = () => requestAnimationFrame(resizeCanvas)
+    window.addEventListener('resize', resizeHandler, { passive: true })
 
     class Particle {
       constructor() {
-        this.x = Math.random() * canvas.width
-        this.y = Math.random() * canvas.height
-        this.vx = (Math.random() - 0.5) * 0.3
-        this.vy = (Math.random() - 0.5) * 0.3
-        this.size = Math.random() * 2 + 1
-        this.opacity = Math.random() * 0.4 + 0.1
+        this.x = Math.random() * (canvas.width / (window.devicePixelRatio || 1))
+        this.y = Math.random() * (canvas.height / (window.devicePixelRatio || 1))
+        this.vx = (Math.random() - 0.5) * 0.2 // Reduced speed
+        this.vy = (Math.random() - 0.5) * 0.2
+        this.size = Math.random() * 1.5 + 0.5 // Smaller particles
+        this.opacity = Math.random() * 0.3 + 0.1 // Lower opacity
         this.color = '#00ffff'
-        this.pulseSpeed = Math.random() * 0.02 + 0.01
-        this.pulse = 2
+        this.pulseSpeed = Math.random() * 0.01 + 0.005 // Slower pulse
+        this.pulse = Math.random() * Math.PI * 2
         this.baseOpacity = this.opacity
       }
 
@@ -89,36 +104,34 @@ const ParticleBackground = () => {
         this.x += this.vx
         this.y += this.vy
 
-        if (this.x <= 0 || this.x >= canvas.width) {
-          this.vx *= -0.8
-        }
-        if (this.y <= 0 || this.y >= canvas.height) {
-          this.vy *= -0.8
-        }
+        const maxX = canvas.width / (window.devicePixelRatio || 1)
+        const maxY = canvas.height / (window.devicePixelRatio || 1)
 
-        this.x = Math.max(0, Math.min(canvas.width, this.x))
-        this.y = Math.max(0, Math.min(canvas.height, this.y))
+        if (this.x <= 0 || this.x >= maxX) this.vx *= -0.8
+        if (this.y <= 0 || this.y >= maxY) this.vy *= -0.8
+
+        this.x = Math.max(0, Math.min(maxX, this.x))
+        this.y = Math.max(0, Math.min(maxY, this.y))
 
         this.pulse += this.pulseSpeed
-        this.opacity = this.baseOpacity + Math.sin(this.pulse) * 0.1
+        this.opacity = this.baseOpacity + Math.sin(this.pulse) * 0.05
       }
 
       draw() {
-        if (!isVisible) return
+        if (!isVisible || !isIntersecting) return
 
-        ctx.save()
         ctx.globalAlpha = this.opacity
+        ctx.fillStyle = this.color
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx.fillStyle = this.color
         ctx.fill()
-        ctx.restore()
       }
     }
 
     const createParticles = () => {
       particlesRef.current = []
-      const particleCount = Math.max(100, Math.floor(canvas.width * canvas.height / 15000))
+      const area = (canvas.width * canvas.height) / Math.pow(window.devicePixelRatio || 1, 2)
+      const particleCount = Math.min(50, Math.max(20, Math.floor(area / 25000))) // Reduced count
 
       for (let i = 0; i < particleCount; i++) {
         particlesRef.current.push(new Particle())
@@ -126,7 +139,7 @@ const ParticleBackground = () => {
     }
 
     let lastTime = 0
-    const targetFPS = 60
+    const targetFPS = 30 // Reduced from 60 for better performance
     const frameDelay = 1000 / targetFPS
 
     const animate = (currentTime) => {
@@ -137,100 +150,108 @@ const ParticleBackground = () => {
 
       lastTime = currentTime
 
+      if (!isIntersecting || !isVisible) {
+        animationIdRef.current = requestAnimationFrame(animate)
+        return
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      if (isVisible) {
-        particlesRef.current.forEach(particle => {
-          particle.update()
-          particle.draw()
-        })
+      // Update and draw particles
+      particlesRef.current.forEach(particle => {
+        particle.update()
+        particle.draw()
+      })
 
-        const connectionDistance = 80
-        particlesRef.current.forEach((particle, i) => {
-          for (let j = i + 1; j < particlesRef.current.length; j++) {
-            const dx = particle.x - particlesRef.current[j].x
-            const dy = particle.y - particlesRef.current[j].y
-            const distance = Math.sqrt(dx * dx + dy * dy)
+      // Simplified connection drawing with reduced distance
+      const connectionDistance = 60 // Reduced from 80
+      ctx.strokeStyle = 'rgba(200, 200, 255, 0.1)'
+      ctx.lineWidth = 0.5
 
-            if (distance < connectionDistance) {
-              ctx.save()
-              ctx.beginPath()
-              ctx.moveTo(particle.x, particle.y)
-              ctx.lineTo(particlesRef.current[j].x, particlesRef.current[j].y)
-              const alpha = 0.15 * (1 - distance / connectionDistance)
-              ctx.strokeStyle = `rgba(200, 200, 255, ${alpha})`
-              ctx.lineWidth = 0.5
-              ctx.stroke()
-              ctx.restore()
-            }
+      for (let i = 0; i < particlesRef.current.length; i++) {
+        for (let j = i + 1; j < particlesRef.current.length; j++) {
+          const particle1 = particlesRef.current[i]
+          const particle2 = particlesRef.current[j]
+          
+          const dx = particle1.x - particle2.x
+          const dy = particle1.y - particle2.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+
+          if (distance < connectionDistance) {
+            ctx.globalAlpha = 0.1 * (1 - distance / connectionDistance)
+            ctx.beginPath()
+            ctx.moveTo(particle1.x, particle1.y)
+            ctx.lineTo(particle2.x, particle2.y)
+            ctx.stroke()
           }
-        })
+        }
       }
 
       animationIdRef.current = requestAnimationFrame(animate)
     }
 
     createParticles()
-    animate(0)
+    animationIdRef.current = requestAnimationFrame(animate)
 
     const scrollHandler = throttledScrollHandler()
     window.addEventListener('scroll', scrollHandler, { passive: true })
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas)
+      window.removeEventListener('resize', resizeHandler)
       window.removeEventListener('scroll', scrollHandler)
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current)
       }
     }
-  }, [isVisible, throttledScrollHandler])
+  }, [isVisible, isIntersecting, throttledScrollHandler])
 
   return (
     <canvas
       ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"
       style={{
-        opacity: isVisible ? 1 : 0.3,
-        transition: 'opacity 0.3s ease-in-out'
+        opacity: isVisible && isIntersecting ? 0.7 : 0.2,
+        transition: 'opacity 0.5s ease-out',
+        willChange: 'opacity'
       }}
     />
   )
-}
+})
 
-const PageSection = ({ children, className = "" }) => {
+const PageSection = React.memo(({ children, className = "" }) => {
   const ref = useRef(null)
   const isInView = useInView(ref, {
     once: true,
-    amount: 0.1,
-    margin: "0px 0px -100px 0px"
+    amount: 0.05, // Reduced threshold
+    margin: "0px 0px -50px 0px" // Reduced margin
   })
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 30 }} // Reduced movement
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       transition={{
-        duration: 0.8,
+        duration: 0.6, // Faster animation
         ease: [0.25, 0.25, 0.25, 0.75],
-        type: "spring",
-        stiffness: 100,
-        damping: 20
+        type: "tween" // Using tween instead of spring for performance
       }}
       className={className}
+      style={{ willChange: 'transform, opacity' }} // Hardware acceleration
     >
       {children}
     </motion.div>
   )
-}
+})
 
-const LoadingScreen = () => {
+const LoadingScreen = React.memo(() => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Faster loading screen
     const timer = setTimeout(() => {
       setIsLoading(false)
-    }, 2000)
+    }, 1500) // Reduced from 2000
 
     return () => clearTimeout(timer)
   }, [])
@@ -241,96 +262,118 @@ const LoadingScreen = () => {
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 0.5, delay: 1.5 }}
+      transition={{ duration: 0.3, delay: 1.2 }} // Faster transition
       className="fixed inset-0 bg-black z-50 flex items-center justify-center"
-      style={{ pointerEvents: isLoading ? 'auto' : 'none' }}
+      style={{ 
+        pointerEvents: isLoading ? 'auto' : 'none',
+        willChange: 'opacity'
+      }}
     >
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.3 }} // Faster animation
         className="text-white text-2xl font-bold"
       >
         Loading...
       </motion.div>
     </motion.div>
   )
-}
+})
 
-const BackToTopButton = () => {
+const BackToTopButton = React.memo(() => {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
+    let timeoutId
     const toggleVisibility = () => {
-      if (window.scrollY > 300 && window.scrollY < 4125 && window.innerWidth > 853) {
-        setIsVisible(true);
-      }else {
-        setIsVisible(false);
-      }
+      // Debounce the visibility check
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        const shouldShow = window.scrollY > 300 && 
+                          window.scrollY < 4125 && 
+                          window.innerWidth > 853
+        setIsVisible(shouldShow)
+      }, 100)
     }
 
-    window.addEventListener('scroll', toggleVisibility)
-    return () => window.removeEventListener('scroll', toggleVisibility)
+    window.addEventListener('scroll', toggleVisibility, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', toggleVisibility)
+      clearTimeout(timeoutId)
+    }
   }, [])
 
-  const scrollToTop = () => {
+  const scrollToTop = useCallback(() => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     })
-  }
+  }, [])
+
+  if (!isVisible) return null
 
   return (
     <motion.button
       initial={{ opacity: 0, scale: 0.8 }}
-      animate={{
-        opacity: isVisible ? 1 : 0,
-        scale: isVisible ? 1 : 0.8
-      }}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      whileHover={{ scale: 1.05 }} // Reduced scale
+      whileTap={{ scale: 0.95 }}
       transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 20,
-        duration: 0.3
+        type: "tween",
+        duration: 0.2 // Faster transition
       }}
       className="fixed w-12 cursor-pointer h-12 bottom-8 right-8 bg-blue-500 text-white p-3 rounded-full shadow-lg z-20 hover:bg-blue-600 transition-colors"
       onClick={scrollToTop}
-      style={{
-        pointerEvents: isVisible ? 'auto' : 'none'
-      }}
+      style={{ willChange: 'transform' }}
     >
       ↑
     </motion.button>
   )
-}
+})
 
 const App = () => {
   const isMobile = useMediaQuery({ maxWidth: 853 })
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    const preloadImages = () => {
-      const imageUrls = [
-        'assets/coding-pov.jpg',
-      ]
+    const preloadCriticalResources = async () => {
+      try {
+        // Preload critical images only
+        const criticalImages = [
+          'assets/coding-pov.jpg',
+        ]
 
-      const promises = imageUrls.map(url => {
-        return new Promise((resolve, reject) => {
-          const img = new Image()
-          img.onload = resolve
-          img.onerror = reject
-          img.src = url
+        // Use more efficient image preloading
+        const imagePromises = criticalImages.map(url => {
+          return new Promise((resolve) => {
+            const img = new Image()
+            img.onload = resolve
+            img.onerror = resolve // Don't fail on error
+            img.src = url
+            // Set loading priority
+            img.loading = 'eager'
+          })
         })
-      })
 
-      Promise.all(promises)
-        .then(() => setIsLoaded(true))
-        .catch(() => setIsLoaded(true))
+        await Promise.allSettled(imagePromises)
+        setIsLoaded(true)
+      } catch (error) {
+        console.warn('Image preloading failed:', error)
+        setIsLoaded(true)
+      }
     }
 
-    preloadImages()
+    preloadCriticalResources()
+
+    // Prefetch other resources in the background
+    requestIdleCallback(() => {
+      const link = document.createElement('link')
+      link.rel = 'prefetch'
+      link.href = '/models/low_poly_man_working_at_a_table_with_a_laptop.glb'
+      document.head.appendChild(link)
+    })
   }, [])
 
   return (
@@ -338,13 +381,15 @@ const App = () => {
       <div className="relative overflow-hidden">
         <LoadingScreen />
 
-        {!isMobile && <ParticleBackground />}
+        {/* Only render particle background on desktop and when loaded */}
+        {!isMobile && isLoaded && <ParticleBackground />}
 
         <motion.div
           className="relative z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: isLoaded ? 1 : 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }} // Faster transition
+          style={{ willChange: 'opacity' }}
         >
           <Navbar />
           <Hero />

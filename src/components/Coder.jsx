@@ -1,11 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
-import { useMotionValue, useSpring } from 'motion/react'
-import { useFrame } from '@react-three/fiber'
-import { useMediaQuery } from 'react-responsive'
 
 export function Coder(props) {
-  const isMobile = useMediaQuery({ maxWidth: 853 })
   const group = useRef()
   const { nodes, materials, animations } = useGLTF(
     '/models/low_poly_man_working_at_a_table_with_a_laptop.glb'

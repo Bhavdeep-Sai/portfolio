@@ -53,7 +53,9 @@ const Contact = () => {
     };
     return (
         <section id="contact" className="relative flex items-center c-space py-20">
-            {showAlert && <Alert type={alertType} text={alertMessage} />}
+            <div className="absolute top-0 right-0">
+                {showAlert && <Alert type={alertType} text={alertMessage} />}
+            </div>
             <div className="flex w-full justify-center">
                 <div className="hidden w-1/2 p-5 md:flex items-end ">
                     <img src="/assets/contact.svg" alt="Contact me" />

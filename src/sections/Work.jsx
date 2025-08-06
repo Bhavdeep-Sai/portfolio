@@ -21,7 +21,7 @@ const Work = () => {
         },
         {
             id: 2,
-            title: "Tic Tac Toe - Mini Game",
+            title: "Tic Tac Toe - Mini Game (local)",
             description: "A quick and fun two-player game — get three in a row and claim your victory!",
             image: "/assets/projects/tic-tac-toe.jpeg",
             technologies: ["HTML", "CSS", "Java Script"],
@@ -37,10 +37,19 @@ const Work = () => {
             github: "https://github.com/Bhavdeep-Sai/Tic_Tac_Toe-Mini-Game",
             demo: "https://petcrazymoments.netlify.app/",
         },
+        {
+            id: 4,
+            title: "Tic Tac Toe — (Global)",
+            description: " two players from anywhere in the world to connect and compete in a simple yet interactive game session.",
+            image: "/assets/projects/tic-tac-toe.png",
+            technologies: ["React", "Socket.io", "Tailwindcss", "Three.js", "Motion"],
+            github: "https://github.com/Bhavdeep-Sai/tic-tac-toe",
+            demo: "https://ox-fungame.netlify.app/",
+        },
     ];
 
     return (
-        <section id='work' className="min-h-screen relative py-8 sm:py-12 md:py-16 lg:pt-20 px-3 sm:px-4 md:px-6 lg:px-8">
+        <section id='work' className="min-h-screen relative sm:py-12 lg:pt-20 mt-10 md:mt-0 px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
                 <div className={`text-center mb-8 sm:mb-12 md:mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
@@ -49,7 +58,7 @@ const Work = () => {
                     </h2>
                     <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 max-w-xs sm:max-w-md md:max-w-3xl lg:max-w-5xl mx-auto leading-relaxed px-2 sm:px-4 md:px-0">
                         A showcase of the projects I've built to solve real-world problems and explore new technologies.
-                        Each project reflects my journey as a developer — from frontend design to backend logic, demonstrating skills in React, Node.js, databases, and more. Explore how I turn ideas into functional, impactful solutions.
+                        Each project reflects my journey as a developer 
                     </p>
                 </div>
 
@@ -94,18 +103,20 @@ const Work = () => {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="absolute left-3 sm:left-4 md:left-5 lg:left-6 right-3 sm:right-4 md:right-5 lg:right-6 bottom-3 sm:bottom-4 flex items-center justify-center gap-2 sm:gap-3 md:gap-4">
-                                    <button className="p-2 sm:p-3 bg-white/20 flex items-center w-1/2 h-10 sm:h-12 md:h-13 gap-1 sm:gap-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors">
-                                        <a href={project.github} target='_blank' rel="noopener noreferrer" className="flex items-center gap-1 sm:gap-2 w-full justify-center">
-                                            <Github size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6 text-white bg-black rounded-full p-1 sm:p-2 flex-shrink-0" />
-                                            <span className="text-xs sm:text-sm text-white truncate">Github</span>
+                                <div className="absolute left-3 sm:left-4 md:left-5 lg:left-6 right-3 sm:right-4 md:right-5 lg:right-6 bottom-3 sm:bottom-4 flex items-center justify-center gap-2 sm:gap-3 md:gap-3">
+                                    <button className="p-2 sm:p-3 bg-white/20 flex items-center justify-start w-[180px] h-10 sm:h-12 md:h-13 gap-1 sm:gap-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors">
+                                        <a href={project.github} target='_blank' rel="noopener noreferrer" className="flex items-center gap-1 sm:gap-2 justify-center">
+                                            <Github size={16} className="sm:w-5 sm:h-5 md:w-9 md:h-9 text-white bg-black rounded-full p-1 sm:p-2 flex-shrink-0" />
                                         </a>
+
+                                        <div className="text-xs sm:text-sm md:text-lg flex justify-start  text-white truncate w-full">Github</div>
                                     </button>
-                                    <button className="p-2 sm:p-3 bg-white/20 flex items-center w-1/2 h-10 sm:h-12 md:h-13 gap-1 sm:gap-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors">
-                                        <a href={project.demo} target='_blank' rel="noopener noreferrer" className="flex items-center gap-1 sm:gap-2 w-full justify-center">
-                                            <ExternalLink size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6 text-white bg-black rounded-full p-1 sm:p-2 flex-shrink-0" />
-                                            <span className="text-xs sm:text-sm text-white truncate">View Project</span>
+                                    <button className="p-2 sm:p-3 bg-white/20 flex items-center justify-start w-[200px] h-10 sm:h-12 md:h-13 gap-1 sm:gap-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors">
+                                        <a href={project.demo} target='_blank' rel="noopener noreferrer" className="flex items-center justify-center">
+                                            <ExternalLink size={20} className="sm:w-5 sm:h-5 md:w-9 md:h-9 text-white bg-black rounded-full p-1 sm:p-2 flex-shrink-0" />
                                         </a>
+
+                                        <div className="text-xs sm:text-sm md:text-lg flex justify-start  text-white truncate w-full">View Project</div>
                                     </button>
                                 </div>
                             </div>

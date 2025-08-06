@@ -178,7 +178,7 @@ const About = () => {
   return (
     <motion.section 
       ref={sectionRef}
-      className="c-space relative min-h-screen py-10 lg:py-20" 
+      className="c-space mt-10 md:mt-0 relative min-h-screen" 
       id="about"
       initial={{ opacity: 0 }}
       animate={{ opacity: isLoaded ? 1 : 0 }}
@@ -345,7 +345,7 @@ const About = () => {
             </p>
           </motion.div>
           <motion.figure 
-            className="absolute left-[40%] top-[10%]"
+            className="absolute  left-[40%] top-[10%]"
             initial={{ opacity: 0, scale: 0.6, rotate: -180 }}
             animate={isInView ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.6, rotate: -180 }}
             transition={{ 
@@ -429,12 +429,12 @@ const About = () => {
             }}
           >
             <p className="headtext mb-3 lg:mb-2">Tech Stack</p>
-            <p className="subtext">
+            <p className="subtext z-30">
               A curated set of technologies I use to design, build, and deploy modern, scalable, and performant web applications. From crafting responsive user interfaces to developing secure backend systems, I work across the full development lifecycle
             </p>
           </motion.div>
           <motion.div 
-            className="absolute inset-y-0 md:inset-y-9 w-full h-full start-[50%] md:scale-125"
+            className="absolute -z-10 inset-y-0 md:inset-y-9 w-full h-full start-[50%] md:scale-125"
             initial={{ opacity: 0, x: 60, scale: 0.8 }}
             animate={isInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 60, scale: 0.8 }}
             transition={{ 

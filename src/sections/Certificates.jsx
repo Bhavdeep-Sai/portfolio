@@ -302,7 +302,7 @@ const Certificates = () => {
 
     return (
         <section id='certificates' className='min-h-screen relative overflow-hidden'>
-            <div className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 pt-12 sm:pt-16 md:pt-20">
+            <div className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 pt-12 sm:pt-16 ">
                 {/* Header */}
                 <div className={`text-center mb-8 sm:mb-12 md:mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
                     <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-3 sm:mb-4 md:mb-6 leading-tight">

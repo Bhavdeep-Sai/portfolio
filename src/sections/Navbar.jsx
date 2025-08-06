@@ -3,74 +3,33 @@ import { useState } from "react"
 import { motion } from "motion/react"
 import { Link } from "react-scroll"
 
-function Navigation() {
+function Navigation({ onLinkClick }) {
     return (
         <ul className="nav-ul">
-            <li className="nav-li cursor-pointer">
-                <Link
-                    to="home"
-                    smooth={true}
-                    duration={500}
-                    offset={-60}
-                    className="nav-link"
-                    spy={true}
-                    activeClass="active"
-                >
-                    Home
-                </Link>
-            </li>
-            <li className="nav-li cursor-pointer">
-                <Link
-                    to="about"
-                    smooth={true}
-                    duration={500}
-                    offset={-60}
-                    className="nav-link"
-                    spy={true}
-                    activeClass="active"
-                >
-                    About
-                </Link>
-            </li>
-            <li className="nav-li cursor-pointer">
-                <Link
-                    to="work"
-                    smooth={true}
-                    duration={500}
-                    offset={-60}
-                    className="nav-link"
-                    spy={true}
-                    activeClass="active"
-                >
-                    Work
-                </Link>
-            </li>
-            <li className="nav-li cursor-pointer">
-                <Link
-                    to="certificates"
-                    smooth={true}
-                    duration={500}
-                    offset={-60}
-                    className="nav-link"
-                    spy={true}
-                    activeClass="active"
-                >
-                    Certificates
-                </Link>
-            </li>
-            <li className="nav-li cursor-pointer">
-                <Link
-                    to="contact"
-                    smooth={true}
-                    duration={500}
-                    offset={-60}
-                    className="nav-link"
-                    spy={true}
-                    activeClass="active"
-                >
-                    Contact
-                </Link>
-            </li>
+            {[
+                { to: "home", label: "Home" },
+                { to: "about", label: "About" },
+                { to: "work", label: "Work" },
+                { to: "certificates", label: "Certificates" },
+                { to: "contact", label: "Contact" },
+            ].map((item) => (
+                <li key={item.to} className="nav-li cursor-pointer">
+                    <Link
+                        to={item.to}
+                        smooth={true}
+                        duration={500}
+                        offset={-60}
+                        className="nav-link"
+                        spy={true}
+                        activeClass="active"
+                        onClick={() => {
+                            if (onLinkClick) onLinkClick() 
+                        }}
+                    >
+                        {item.label}
+                    </Link>
+                </li>
+            ))}
         </ul>
     )
 }
@@ -111,7 +70,7 @@ const Navbar = () => {
                     transition={{ duration: 1 }}
                 >
                     <nav className="pb-5">
-                        <Navigation />
+                        <Navigation onLinkClick={() => setOpen(false)} />
                     </nav>
                 </motion.div>
             )}
