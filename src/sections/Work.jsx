@@ -34,7 +34,7 @@ const Work = () => {
             description: "Upload hilarious photos and videos of your pets' craziest antics. Laugh, share, and relive those unforgettable moments with a community that loves pets as much as you do!",
             image: "/assets/projects/petCrazy.png",
             technologies: ["React", "SQL", "Nodejs", "Tailwindcss"],
-            github: "https://github.com/Bhavdeep-Sai/Tic_Tac_Toe-Mini-Game",
+            github: "https://github.com/kalviumcommunity/S86_Pet-Crazy-Moments",
             demo: "https://petcrazymoments.netlify.app/",
         },
         {
